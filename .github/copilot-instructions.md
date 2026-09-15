@@ -5,6 +5,15 @@ Aplicación web CRUD de gestión de tareas personales como demo didáctica del c
 Permite crear, consultar, actualizar y eliminar tareas, con soporte de plantillas reutilizables y tareas repetitivas con generación automática de la siguiente ocurrencia al completar.
 La prioridad es la claridad del código sobre la sofisticación arquitectónica.
 
+## Entorno de ejecución (terminal)
+- Ruta completa del workspace: `F:\w\repos\app-todolist-260914`. Usar siempre esta ruta absoluta al ejecutar comandos o abrir archivos; no asumir `C:\` ni la carpeta del usuario.
+- El workspace está en la unidad `F:`, fuera del sandbox por defecto del terminal. Cualquier comando de terminal en este repo (git, dotnet, npm, etc.) necesita ejecutarse con `requestUnsandboxedExecution=true`, o fallará con "Access to the path is denied" o "not a git repository" aunque el repositorio exista.
+- El terminal sandboxed no conserva el directorio de trabajo entre llamadas: hay que anteponer `cd "F:\w\repos\app-todolist-260914";` (o el subdirectorio correspondiente, p. ej. `AppTodoList.Api` o `frontend`) en cada comando nuevo en lugar de asumir que el `cd` anterior persiste.
+- Usar `git --no-pager` para evitar que `git diff` / `git log` invoquen `less.exe`, que falla en este entorno (Git for Windows + MSYS).
+- Backend: ejecutar desde `AppTodoList.Api/` (`dotnet run --launch-profile https`, disponible en `https://localhost:5001`).
+- Frontend: ejecutar desde `frontend/` (`npm run dev`, disponible en `http://localhost:5173`).
+- Python del sistema: `C:\Users\hispa\AppData\Local\Python\bin\python.exe`. No usar `python` ni `python3` a secas: resuelven al stub de Microsoft Store y no funcionan.
+
 ## Fuente de verdad y soporte
 - El documento de análisis y diseño en `docs/analisis-diseño.md` es la fuente de verdad del dominio, requisitos funcionales, endpoints y modelo de datos.
 - El archivo `.github/copilot-instructions.md` no sustituye al análisis; actúa como guía operativa para que Copilot mantenga la estructura, el estilo y la separación de responsabilidades del proyecto.
@@ -29,7 +38,7 @@ La prioridad es la claridad del código sobre la sofisticación arquitectónica.
 - Capa de tests: `Tests/`
 
 Estructura recomendada:
-- `Models/` → entidades del negocio (`TodoItem`, `PlantillaTarea`, `TipoRecurrencia`)
+- `Models/` → entidades del negocio (`TodoItem`, `PlantillaTarea`, `Persona`, `TipoRecurrencia`)
 - `Data/` → `DbContext` y configuración de EF Core
 - `Services/` → `ITodoService` + `TodoService`, `IPlantillaService` + `PlantillaService`
 - `Controllers/` → orquestación HTTP sin lógica de negocio
@@ -44,6 +53,7 @@ AppTodoList/
 ├── Models/
 │   ├── TodoItem.cs
 │   ├── PlantillaTarea.cs
+│   ├── Persona.cs
 │   └── TipoRecurrencia.cs
 │
 ├── Data/
@@ -92,10 +102,12 @@ Reglas clave:
 - Priorizar legibilidad sobre sofisticación.
 
 ## Modelado de dominio
-- `TodoItem` representa una tarea con sus propiedades principales: `Id`, `Title`, `IsCompleted`, `CreatedAt`, `EsRepetitiva`, `Recurrencia`, `ProximaFecha`, `PlantillaId`.
+- `TodoItem` representa una tarea con sus propiedades principales: `Id`, `Title`, `IsCompleted`, `CreatedAt`, `EsRepetitiva`, `Recurrencia`, `ProximaFecha`, `PlantillaId`, `PersonaId`.
 - `PlantillaTarea` es una entidad independiente que permite generar tareas con valores predefinidos.
+- `Persona` representa a la persona responsable de una tarea y puede asociarse a varias tareas.
 - `TipoRecurrencia` es un enum con los valores `Diaria`, `Semanal` y `Mensual`.
 - La FK `PlantillaId` debe ser nullable para permitir tareas creadas manualmente sin plantilla.
+- La FK `PersonaId` debe ser nullable para permitir tareas sin persona asignada.
 - Los nombres y reglas de negocio deben ser claros y estar alineados con el dominio de la aplicación.
 
 ## Base de datos y EF Core

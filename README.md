@@ -80,10 +80,15 @@ Representa una tarea personal con sus atributos principales:
 - Recurrencia
 - ProximaFecha
 - PlantillaId
+- PersonaId
 
 ### PlantillaTarea
 
 Entidad reutilizable para generar tareas con valores predefinidos.
+
+### Persona
+
+Entidad auxiliar que representa a la persona responsable de una tarea. El dominio permite asignar una tarea concreta a una persona, y esa relación queda representada con `PersonaId` en `TodoItem`.
 
 ### TipoRecurrencia
 

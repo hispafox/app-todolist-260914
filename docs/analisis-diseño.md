@@ -25,7 +25,7 @@ Estructura de capas plana y legible en pantalla, sin patrones complejos (sin CQR
 
 | Capa | Carpeta | Responsabilidad |
 |---|---|---|
-| Modelos de dominio | `Models/` | Entidades del negocio (`TodoItem`, `PlantillaTarea`, `TipoRecurrencia`) |
+| Modelos de dominio | `Models/` | Entidades del negocio (`TodoItem`, `PlantillaTarea`, `Persona`, `TipoRecurrencia`) |
 | Acceso a datos | `Data/` | `DbContext` y configuración de EF Core |
 | Lógica de negocio | `Services/` | `ITodoService` + `TodoService`, `IPlantillaService` + `PlantillaService` |
 | API / Controladores | `Controllers/` | Orquestación HTTP, sin lógica de negocio |
@@ -36,6 +36,7 @@ AppTodoList/
 ├── Models/
 │   ├── TodoItem.cs
 │   ├── PlantillaTarea.cs
+│   ├── Persona.cs
 │   └── TipoRecurrencia.cs
 ├── Data/
 │   └── AppDbContext.cs
@@ -77,6 +78,8 @@ El modelo debe mantenerse estable y solo ampliarse cuando el análisis lo exige.
 | `Recurrencia` | `TipoRecurrencia?` | Periodicidad: `Diaria`, `Semanal` o `Mensual`. `null` si no es repetitiva |
 | `ProximaFecha` | `DateTime?` | Fecha calculada para la siguiente ocurrencia. `null` si no es repetitiva |
 | `PlantillaId` | `int?` | FK opcional a `PlantillaTarea` si la tarea se originó de una plantilla |
+| `CategoriaId` | `int?` | FK opcional a `Categoria` para clasificar la tarea |
+| `PersonaId` | `int?` | FK opcional a `Persona` responsable de la tarea |
 
 ```csharp
 public class TodoItem
@@ -90,6 +93,10 @@ public class TodoItem
     public DateTime? ProximaFecha { get; set; }
     public int? PlantillaId { get; set; }
     public PlantillaTarea? Plantilla { get; set; }
+    public int? CategoriaId { get; set; }
+    public Categoria? Categoria { get; set; }
+    public int? PersonaId { get; set; }
+    public Persona? Persona { get; set; }
 }
 ```
 
@@ -113,6 +120,46 @@ public class PlantillaTarea
     public string Titulo { get; set; } = string.Empty;
     public bool EsRepetitiva { get; set; }
     public TipoRecurrencia? Recurrencia { get; set; }
+}
+```
+
+---
+
+### `Categoria`
+
+Entidad auxiliar para clasificar tareas por tipo o contexto. Permite agrupar tareas por área funcional o visual.
+
+| Campo | Tipo | Descripción |
+|---|---|---|
+| `Id` | `int` | Clave primaria, autogenerada |
+| `Nombre` | `string` | Nombre visible de la categoría. Requerido |
+| `Color` | `string` | Código de color asociado a la categoría para su representación visual |
+
+```csharp
+public class Categoria
+{
+    public int Id { get; set; }
+    public string Nombre { get; set; } = string.Empty;
+    public string Color { get; set; } = string.Empty;
+}
+```
+
+---
+
+### `Persona`
+
+Entidad auxiliar para representar a la persona responsable de una tarea. Permite asignar una tarea concreta a una persona sin mezclar la lógica de negocio con un usuario del sistema.
+
+| Campo | Tipo | Descripción |
+|---|---|---|
+| `Id` | `int` | Clave primaria, autogenerada |
+| `Nombre` | `string` | Nombre visible de la persona responsable |
+
+```csharp
+public class Persona
+{
+    public int Id { get; set; }
+    public string Nombre { get; set; } = string.Empty;
 }
 ```
 

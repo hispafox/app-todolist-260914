@@ -1,0 +1,94 @@
+:root {
+  --color-bg: #f4f6f9;
+  --color-surface: #ffffff;
+  --color-text: #45505f;
+  --color-text-strong: #142238;
+  --color-border: #dde3ea;
+  --color-primary: #1d4e89;
+  --color-primary-hover: #163c6b;
+  --color-primary-contrast: #ffffff;
+  --color-accent: #0d9488;
+  --color-accent-bg: rgba(13, 148, 136, 0.1);
+  --color-danger: #dc2626;
+  --color-danger-hover: #b91c1c;
+  --color-danger-bg: rgba(220, 38, 38, 0.08);
+  --color-focus-ring: rgba(29, 78, 137, 0.35);
+  --shadow-card: 0 1px 2px rgba(20, 34, 56, 0.06), 0 4px 12px rgba(20, 34, 56, 0.06);
+  --shadow-card-hover: 0 2px 4px rgba(20, 34, 56, 0.08), 0 8px 20px rgba(20, 34, 56, 0.1);
+  --radius-md: 10px;
+  --radius-lg: 14px;
+
+  --sans: 'Open Sans', system-ui, 'Segoe UI', Roboto, sans-serif;
+  --heading: 'Poppins', var(--sans);
+
+  font: 16px/1.5 var(--sans);
+  color-scheme: light dark;
+  color: var(--color-text);
+  background: var(--color-bg);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-bg: #0f1720;
+    --color-surface: #17212c;
+    --color-text: #b7c0cc;
+    --color-text-strong: #f0f3f7;
+    --color-border: #2a3542;
+    --color-primary: #5b93e8;
+    --color-primary-hover: #7ba7ee;
+    --color-primary-contrast: #0f1720;
+    --color-accent: #2dd4bf;
+    --color-accent-bg: rgba(45, 212, 191, 0.15);
+    --color-danger: #f87171;
+    --color-danger-hover: #fca5a5;
+    --color-danger-bg: rgba(248, 113, 113, 0.12);
+    --color-focus-ring: rgba(91, 147, 232, 0.45);
+    --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.3), 0 4px 12px rgba(0, 0, 0, 0.25);
+    --shadow-card-hover: 0 2px 4px rgba(0, 0, 0, 0.35), 0 8px 20px rgba(0, 0, 0, 0.3);
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+}
+
+#root {
+  min-height: 100svh;
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--heading);
+  font-weight: 600;
+  color: var(--color-text-strong);
+}
+
+h1 {
+  font-size: 1.75rem;
+  letter-spacing: -0.02em;
+  margin: 0;
+}
+
+h2 {
+  font-size: 1.25rem;
+  letter-spacing: -0.01em;
+  margin: 0 0 1rem;
+}
+
+p {
+  margin: 0;
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}

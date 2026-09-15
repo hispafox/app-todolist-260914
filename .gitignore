@@ -1,0 +1,20 @@
+# Compilación .NET
+bin/
+obj/
+*.user
+
+# Base de datos SQLite (datos locales, no se versionan)
+*.db
+*.db-shm
+*.db-wal
+
+# IDE / editor
+.vs/
+.idea/
+
+# Configuración local de lanzador de desarrollo (rutas de máquina, no de proyecto)
+.devlauncher/
+
+# Sistema operativo
+.DS_Store
+Thumbs.db
