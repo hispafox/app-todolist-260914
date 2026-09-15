@@ -155,6 +155,7 @@ public enum TipoRecurrencia
 
 ## 6. Decisiones de diseño
 
+
 - **SQLite sobre SQL Server**: base de datos embebida, sin instalación ni configuración de servidor. Ideal para una demo local y didáctica.
 - **Controllers sobre Minimal API**: los controladores con atributos son más explícitos y fáciles de leer en pantalla durante una presentación.
 - **Frontend React + Vite**: la capa cliente será una SPA en React con Vite y TypeScript, separada del backend y consumiendo la API REST.
