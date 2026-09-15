@@ -56,7 +56,11 @@ AppTodoList/
 - Inyección de dependencias por constructor, nunca `new` directo de servicios.
 - `async/await` en todos los métodos que accedan a base de datos.
 - Los controladores solo orquestan — sin lógica de negocio dentro de ellos.
+### Regla de coordinación del flujo
 
+La documentación del proyecto es la fuente de verdad para decidir el alcance real del cambio. Cuando llega una petición, primero se registra en el análisis y luego el orquestador determina si el cambio corresponde solo al dominio o requiere ampliar a servicios, Data, controllers o frontend.
+
+El modelo debe mantenerse estable y solo ampliarse cuando el análisis lo exige. No se generan capas adicionales por costumbre ni por anticipación, y la decisión de ampliar el alcance debe hacerse de forma explícita y justificada.
 ---
 
 ## 4. Modelo de datos

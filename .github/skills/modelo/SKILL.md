@@ -43,6 +43,18 @@ Si existen elementos relacionados al modelo (por ejemplo, entidades auxiliares, 
 
 Además, el modelo de datos debe vivir en un proyecto separado del proyecto principal de la aplicación, para poder integrarse después en la solución. No se debe mezclar con la API, la lógica de negocio ni el frontend.
 
+## Regla de dominio y coordinación de alcance
+
+Este skill es la versión canónica del dominio del proyecto. El contenido de `domain-design` queda integrado aquí para evitar duplicación.
+
+- el orquestador dirige el flujo del cambio y decide el alcance real antes de ampliar ninguna capa
+- el dominio ya existe y debe mantenerse alineado con `README.md` y `docs/analisis-diseño.md`
+- no se debe redefinir `TodoItem`, `PlantillaTarea` o `TipoRecurrencia` sin que el análisis lo indique explícitamente
+- este skill solo trabaja el modelo y no debe generar servicios, Data, controllers ni frontend por costumbre
+- la lógica de recurrencia, plantillas y validación debe estar en la capa que corresponda, no mezclada en la API ni en el frontend
+- si una funcionalidad requiere ampliar el alcance a servicios, Data, controllers o frontend, debe decidirlo el orquestador del proyecto y no generarse por costumbre
+- el objetivo del skill es mantener el dominio limpio, explícito y coherente, no duplicar reglas en varias capas
+
 ## Objetivo
 
 Crear y mantener la capa de modelos de dominio de la aplicación, con una estructura simple, clara y alineada con el análisis del proyecto, y garantizando que ese código resida en un proyecto de dominio independiente listo para incorporarse en la solución.

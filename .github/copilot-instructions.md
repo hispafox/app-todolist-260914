@@ -174,11 +174,21 @@ El proyecto debe basarse en Controllers para exponer una API REST clara y explí
 ## Resumen de implementación ideal
 Un cambio típico en este proyecto debe seguir este flujo:
 1. Revisar requisitos y estructura existente.
-2. Definir el modelo o la entidad necesaria.
-3. Añadir o actualizar el `DbContext` y la configuración de EF Core.
-4. Implementar la lógica de negocio en servicios.
-5. Crear o actualizar el controlador REST asociado.
-6. Validar la API y la persistencia con pruebas relevantes.
+2. Registrar la petición en `docs/analisis-diseño.md` mediante el skill de análisis de petición.
+3. Que el orquestador determine el alcance real y la capa adecuada.
+4. Definir el modelo o la entidad necesaria solo si corresponde al cambio.
+5. Añadir o actualizar el `DbContext` y la configuración de EF Core solo cuando la persistencia esté justificada.
+6. Implementar la lógica de negocio en servicios cuando la regla de negocio lo requiera.
+7. Crear o actualizar el controlador REST asociado solo si la funcionalidad necesita exposición HTTP.
+8. Validar la API y la persistencia con pruebas relevantes.
+
+## Regla de coordinación del flujo
+- El orquestador es el director del cambio: decide el alcance, la secuencia y la delegación.
+- El orquestador no sustituye a la capa que implementa la solución; coordina la ejecución y evita scope creep.
+- La documentación debe preceder a la implementación.
+- El cambio solo debe expandirse a las capas necesarias: dominio, servicios, Data, controllers o frontend.
+- Cuando no exista un requisito claro, el alcance debe mantenerse mínimo y explícito.
+- La tarea no debe pasar a una capa superior si la necesidad real está en otra; la coordinación evita generar código extra de forma automática.
 
 ## Regla final
 Cuando haya dudas sobre arquitectura, diseño o persistencia, prioriza una solución simple, explícita y alineada con ASP.NET Core 10 + Controllers + Entity Framework + SQLite, y con un cliente frontend separado en React + Vite + TypeScript. No mezcles responsabilidades ni conviertas el proyecto en un diseño más complejo que el definido en el análisis; el objetivo es una demo clara, mantenible y fácil de seguir.
