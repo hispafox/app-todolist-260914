@@ -54,6 +54,23 @@ export function CategoriasPage() {
     setCategoriaEditando(null)
   }
 
+  async function manejarEliminarClick(categoria: Categoria) {
+    if (!window.confirm(`¿Seguro que quieres eliminar la categoría "${categoria.nombre}"?`)) {
+      return
+    }
+
+    try {
+      await categoriasApi.eliminar(categoria.id)
+      setCategorias((actuales) => actuales.filter((c) => c.id !== categoria.id))
+      if (categoriaEditando?.id === categoria.id) {
+        setCategoriaEditando(null)
+      }
+      setError(null)
+    } catch (err) {
+      setError(err instanceof ApiError ? err.message : 'No se pudo eliminar la categoría.')
+    }
+  }
+
   return (
     <section>
       <h2>Categorías</h2>
@@ -73,7 +90,12 @@ export function CategoriasPage() {
       ) : (
         <ul className="lista">
           {categorias.map((categoria) => (
-            <CategoriaItem key={categoria.id} categoria={categoria} onEditar={manejarEditarClick} />
+            <CategoriaItem
+              key={categoria.id}
+              categoria={categoria}
+              onEditar={manejarEditarClick}
+              onEliminar={manejarEliminarClick}
+            />
           ))}
         </ul>
       )}

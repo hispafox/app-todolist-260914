@@ -66,4 +66,16 @@ public class CategoriasController : ControllerBase
             return BadRequest(ex.Message);
         }
     }
+
+    [HttpDelete("{id:int}")]
+    public async Task<IActionResult> Delete(int id)
+    {
+        var eliminado = await _categoriaService.EliminarAsync(id);
+        if (!eliminado)
+        {
+            return NotFound();
+        }
+
+        return NoContent();
+    }
 }

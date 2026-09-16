@@ -3,9 +3,10 @@ import type { Categoria } from '../types'
 interface CategoriaItemProps {
   categoria: Categoria
   onEditar: (categoria: Categoria) => void
+  onEliminar: (categoria: Categoria) => void
 }
 
-export function CategoriaItem({ categoria, onEditar }: CategoriaItemProps) {
+export function CategoriaItem({ categoria, onEditar, onEliminar }: CategoriaItemProps) {
   return (
     <li className="tarjeta">
       <div className="tarjeta-info">
@@ -20,6 +21,9 @@ export function CategoriaItem({ categoria, onEditar }: CategoriaItemProps) {
       <div className="tarjeta-acciones">
         <button className="boton boton-secundario" onClick={() => onEditar(categoria)}>
           Editar
+        </button>
+        <button className="boton boton-peligro" onClick={() => onEliminar(categoria)}>
+          Eliminar
         </button>
       </div>
     </li>

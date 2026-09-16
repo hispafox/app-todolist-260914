@@ -17,4 +17,6 @@ export const categoriasApi = {
       method: 'PUT',
       body: JSON.stringify(categoria),
     }),
+
+  eliminar: (id: number) => request<void>(`/categorias/${id}`, { method: 'DELETE' }),
 }

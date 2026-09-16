@@ -153,6 +153,30 @@ public class CategoriasControllerTests : IDisposable
         Assert.IsType<BadRequestObjectResult>(resultado.Result);
     }
 
+    [Fact]
+    public async Task Delete_ConIdExistente_DeberiaDevolver204YEliminarLaCategoria()
+    {
+        var creada = await _controller.Create(new GuardarCategoriaDto { Nombre = "Temporal", Color = "#444444" });
+        var creadaDto = Assert.IsType<CategoriaDto>(Assert.IsType<CreatedResult>(creada.Result).Value);
+
+        var resultado = await _controller.Delete(creadaDto.Id);
+
+        Assert.IsType<NoContentResult>(resultado);
+
+        var listado = await _controller.GetAll();
+        var okResult = Assert.IsType<OkObjectResult>(listado.Result);
+        var categorias = Assert.IsAssignableFrom<IEnumerable<CategoriaDto>>(okResult.Value);
+        Assert.DoesNotContain(categorias, c => c.Id == creadaDto.Id);
+    }
+
+    [Fact]
+    public async Task Delete_ConIdInexistente_DeberiaDevolver404()
+    {
+        var resultado = await _controller.Delete(9999);
+
+        Assert.IsType<NotFoundResult>(resultado);
+    }
+
     public void Dispose()
     {
         _context.Dispose();
