@@ -1,0 +1,13 @@
+{
+  "name": "manual-screenshots",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Capturas de pantalla reales para docs/manual-usuario.md, generadas con Playwright.",
+  "scripts": {
+    "install-browsers": "playwright install chromium",
+    "capturar": "playwright test"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.48.0"
+  }
+}

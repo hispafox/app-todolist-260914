@@ -7,7 +7,7 @@ description: >
   crear un manual de usuario, actualizar la documentación existente, generar guías de uso,
   o producir documentación orientada a usuarios finales (no técnica).
 name: documentador-usuario
-tools: [read, search, edit, terminal]
+tools: [read, search, edit, terminal, playwright]
 model: Claude Sonnet 4.5 (copilot)
 argument-hint: "Formato de salida (docx, pdf, markdown) y tipo de documentación (completa, cambios, guía rápida)"
 user-invocable: true
