@@ -9,15 +9,15 @@ interface TareaFormProps {
 }
 
 const valorPorDefecto: TodoItemInput = {
-  title: '',
-  isCompleted: false,
+  titulo: '',
+  completada: false,
   esRepetitiva: false,
   recurrencia: null,
   categoriaId: null,
 }
 
 export function TareaForm({ valorInicial, categorias = [], onGuardar, onCancelar }: TareaFormProps) {
-  const [title, setTitle] = useState(valorInicial?.title ?? valorPorDefecto.title)
+  const [titulo, setTitulo] = useState(valorInicial?.titulo ?? valorPorDefecto.titulo)
   const [esRepetitiva, setEsRepetitiva] = useState(valorInicial?.esRepetitiva ?? false)
   const [recurrencia, setRecurrencia] = useState<TipoRecurrencia | null>(
     valorInicial?.recurrencia ?? null,
@@ -26,13 +26,13 @@ export function TareaForm({ valorInicial, categorias = [], onGuardar, onCancelar
 
   function handleSubmit(evento: React.FormEvent) {
     evento.preventDefault()
-    if (!title.trim()) {
+    if (!titulo.trim()) {
       return
     }
 
     onGuardar({
-      title: title.trim(),
-      isCompleted: valorInicial?.isCompleted ?? false,
+      titulo: titulo.trim(),
+      completada: valorInicial?.completada ?? false,
       esRepetitiva,
       recurrencia: esRepetitiva ? recurrencia : null,
       categoriaId,
@@ -44,8 +44,8 @@ export function TareaForm({ valorInicial, categorias = [], onGuardar, onCancelar
       <input
         type="text"
         placeholder="Título de la tarea"
-        value={title}
-        onChange={(evento) => setTitle(evento.target.value)}
+        value={titulo}
+        onChange={(evento) => setTitulo(evento.target.value)}
       />
 
       <label className="formulario-check">

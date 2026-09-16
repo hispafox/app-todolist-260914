@@ -10,8 +10,8 @@ export const tareasApi = {
     request<TodoItem>('/tareas', {
       method: 'POST',
       body: JSON.stringify({
-        titulo: tarea.title,
-        completada: tarea.isCompleted,
+        titulo: tarea.titulo,
+        completada: tarea.completada,
         esRepetitiva: tarea.esRepetitiva,
         recurrencia: tarea.recurrencia,
         categoriaId: tarea.categoriaId,
@@ -22,8 +22,8 @@ export const tareasApi = {
     request<TodoItem>(`/tareas/${id}`, {
       method: 'PUT',
       body: JSON.stringify({
-        titulo: tarea.title,
-        completada: tarea.isCompleted,
+        titulo: tarea.titulo,
+        completada: tarea.completada,
         esRepetitiva: tarea.esRepetitiva,
         recurrencia: tarea.recurrencia,
         categoriaId: tarea.categoriaId,

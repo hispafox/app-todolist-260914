@@ -62,6 +62,20 @@ public class TodoServiceTests : IDisposable
     }
 
     [Fact]
+    public async Task ActualizarAsync_ConCategoriaInexistente_DeberiaLanzarArgumentException()
+    {
+        var dto = new GuardarTareaDto
+        {
+            Titulo = "Comprar pan",
+            Completada = false,
+            EsRepetitiva = false,
+            CategoriaId = 999
+        };
+
+        await Assert.ThrowsAsync<ArgumentException>(() => _service.ActualizarAsync(1, dto));
+    }
+
+    [Fact]
     public async Task ActualizarAsync_ConCategoriaNula_DeberiaQuitarLaAsignacion()
     {
         var dto = new GuardarTareaDto

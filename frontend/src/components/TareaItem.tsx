@@ -18,8 +18,8 @@ export function TareaItem({ tarea, categorias, onCompletar, onActualizar, onElim
       <li className="tarjeta">
         <TareaForm
           valorInicial={{
-            title: tarea.title,
-            isCompleted: tarea.isCompleted,
+            titulo: tarea.titulo,
+            completada: tarea.completada,
             esRepetitiva: tarea.esRepetitiva,
             recurrencia: tarea.recurrencia,
             categoriaId: tarea.categoriaId,
@@ -36,9 +36,9 @@ export function TareaItem({ tarea, categorias, onCompletar, onActualizar, onElim
   }
 
   return (
-    <li className={`tarjeta${tarea.isCompleted ? ' tarjeta-completada' : ''}`}>
+    <li className={`tarjeta${tarea.completada ? ' tarjeta-completada' : ''}`}>
       <div className="tarjeta-info">
-        <strong>{tarea.title}</strong>
+        <strong>{tarea.titulo}</strong>
         {tarea.categoria && (
           <span
             className="etiqueta"
@@ -50,11 +50,11 @@ export function TareaItem({ tarea, categorias, onCompletar, onActualizar, onElim
         {tarea.esRepetitiva && tarea.recurrencia !== null && (
           <span className="etiqueta">Repetitiva · {ETIQUETAS_RECURRENCIA[tarea.recurrencia]}</span>
         )}
-        {tarea.isCompleted && <span className="etiqueta etiqueta-completada">Completada</span>}
+        {tarea.completada && <span className="etiqueta etiqueta-completada">Completada</span>}
       </div>
 
       <div className="tarjeta-acciones">
-        {!tarea.isCompleted && (
+        {!tarea.completada && (
           <button className="boton boton-primario" onClick={() => onCompletar(tarea.id)}>
             Completar
           </button>

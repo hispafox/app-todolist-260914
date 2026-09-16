@@ -21,8 +21,8 @@ export interface Categoria {
 
 export interface TodoItem {
   id: number
-  title: string
-  isCompleted: boolean
+  titulo: string
+  completada: boolean
   createdAt: string
   esRepetitiva: boolean
   recurrencia: TipoRecurrencia | null
@@ -34,8 +34,8 @@ export interface TodoItem {
 }
 
 export interface TodoItemInput {
-  title: string
-  isCompleted: boolean
+  titulo: string
+  completada: boolean
   esRepetitiva: boolean
   recurrencia: TipoRecurrencia | null
   categoriaId: number | null
