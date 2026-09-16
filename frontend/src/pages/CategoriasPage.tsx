@@ -9,6 +9,7 @@ export function CategoriasPage() {
   const [categorias, setCategorias] = useState<Categoria[]>([])
   const [error, setError] = useState<string | null>(null)
   const [cargando, setCargando] = useState(true)
+  const [categoriaEditando, setCategoriaEditando] = useState<Categoria | null>(null)
 
   useEffect(() => {
     cargarCategorias()
@@ -27,21 +28,41 @@ export function CategoriasPage() {
     }
   }
 
-  async function manejarCrear(categoria: CategoriaInput) {
+  async function manejarGuardar(categoria: CategoriaInput) {
     try {
-      const creada = await categoriasApi.crear(categoria)
-      setCategorias((actuales) => [...actuales, creada])
+      if (categoriaEditando) {
+        const actualizada = await categoriasApi.actualizar(categoriaEditando.id, categoria)
+        setCategorias((actuales) =>
+          actuales.map((c) => (c.id === actualizada.id ? actualizada : c)),
+        )
+        setCategoriaEditando(null)
+      } else {
+        const creada = await categoriasApi.crear(categoria)
+        setCategorias((actuales) => [...actuales, creada])
+      }
       setError(null)
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : 'No se pudo crear la categoría.')
+      setError(err instanceof ApiError ? err.message : 'No se pudo guardar la categoría.')
     }
+  }
+
+  function manejarEditarClick(categoria: Categoria) {
+    setCategoriaEditando(categoria)
+  }
+
+  function manejarCancelarEdicion() {
+    setCategoriaEditando(null)
   }
 
   return (
     <section>
       <h2>Categorías</h2>
 
-      <CategoriaForm onGuardar={manejarCrear} />
+      <CategoriaForm
+        onGuardar={manejarGuardar}
+        categoriaEnEdicion={categoriaEditando}
+        onCancelar={manejarCancelarEdicion}
+      />
 
       {error && <p className="mensaje-error">{error}</p>}
 
@@ -52,7 +73,7 @@ export function CategoriasPage() {
       ) : (
         <ul className="lista">
           {categorias.map((categoria) => (
-            <CategoriaItem key={categoria.id} categoria={categoria} />
+            <CategoriaItem key={categoria.id} categoria={categoria} onEditar={manejarEditarClick} />
           ))}
         </ul>
       )}

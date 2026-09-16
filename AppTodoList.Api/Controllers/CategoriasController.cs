@@ -22,6 +22,18 @@ public class CategoriasController : ControllerBase
         return Ok(categorias);
     }
 
+    [HttpGet("{id}")]
+    public async Task<ActionResult<CategoriaDto>> GetById(int id)
+    {
+        var categoria = await _categoriaService.ObtenerPorIdAsync(id);
+        if (categoria is null)
+        {
+            return NotFound();
+        }
+
+        return Ok(categoria);
+    }
+
     [HttpPost]
     public async Task<ActionResult<CategoriaDto>> Create([FromBody] GuardarCategoriaDto dto)
     {
@@ -29,6 +41,25 @@ public class CategoriasController : ControllerBase
         {
             var creada = await _categoriaService.CrearAsync(dto);
             return Created($"/api/categorias/{creada.Id}", creada);
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(ex.Message);
+        }
+    }
+
+    [HttpPut("{id}")]
+    public async Task<ActionResult<CategoriaDto>> Update(int id, [FromBody] GuardarCategoriaDto dto)
+    {
+        try
+        {
+            var actualizada = await _categoriaService.ActualizarAsync(id, dto);
+            if (actualizada is null)
+            {
+                return NotFound();
+            }
+
+            return Ok(actualizada);
         }
         catch (ArgumentException ex)
         {

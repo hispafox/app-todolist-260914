@@ -2,9 +2,10 @@ import type { Categoria } from '../types'
 
 interface CategoriaItemProps {
   categoria: Categoria
+  onEditar: (categoria: Categoria) => void
 }
 
-export function CategoriaItem({ categoria }: CategoriaItemProps) {
+export function CategoriaItem({ categoria, onEditar }: CategoriaItemProps) {
   return (
     <li className="tarjeta">
       <div className="tarjeta-info">
@@ -16,6 +17,11 @@ export function CategoriaItem({ categoria }: CategoriaItemProps) {
         aria-label={`Color: ${categoria.color}`}
         title={categoria.color}
       />
+      <div className="tarjeta-acciones">
+        <button className="boton boton-secundario" onClick={() => onEditar(categoria)}>
+          Editar
+        </button>
+      </div>
     </li>
   )
 }

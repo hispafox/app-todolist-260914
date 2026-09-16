@@ -37,12 +37,12 @@ public class CategoriaService : ICategoriaService
         return MapearADto(creada ?? entidad);
     }
 
-    public async Task<CategoriaDto?> ActualizarAsync(int id, CategoriaDto categoria)
+    public async Task<CategoriaDto?> ActualizarAsync(int id, GuardarCategoriaDto dto)
     {
         var entidad = new Categoria
         {
-            Nombre = categoria.Nombre,
-            Color = categoria.Color
+            Nombre = dto.Nombre,
+            Color = dto.Color
         };
 
         var actualizada = await _categoriaLogica.ActualizarAsync(id, entidad);

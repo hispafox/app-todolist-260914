@@ -1,13 +1,25 @@
-import { useState } from 'react'
-import type { CategoriaInput } from '../types'
+import { useEffect, useState } from 'react'
+import type { Categoria, CategoriaInput } from '../types'
 
 interface CategoriaFormProps {
   onGuardar: (categoria: CategoriaInput) => void
+  categoriaEnEdicion?: Categoria | null
+  onCancelar?: () => void
 }
 
-export function CategoriaForm({ onGuardar }: CategoriaFormProps) {
+export function CategoriaForm({ onGuardar, categoriaEnEdicion, onCancelar }: CategoriaFormProps) {
   const [nombre, setNombre] = useState('')
   const [color, setColor] = useState('#2563eb')
+
+  useEffect(() => {
+    if (categoriaEnEdicion) {
+      setNombre(categoriaEnEdicion.nombre)
+      setColor(categoriaEnEdicion.color)
+    } else {
+      setNombre('')
+      setColor('#2563eb')
+    }
+  }, [categoriaEnEdicion])
 
   function handleSubmit(evento: React.FormEvent) {
     evento.preventDefault()
@@ -16,8 +28,10 @@ export function CategoriaForm({ onGuardar }: CategoriaFormProps) {
     }
 
     onGuardar({ nombre: nombre.trim(), color })
-    setNombre('')
-    setColor('#2563eb')
+    if (!categoriaEnEdicion) {
+      setNombre('')
+      setColor('#2563eb')
+    }
   }
 
   return (
@@ -42,8 +56,13 @@ export function CategoriaForm({ onGuardar }: CategoriaFormProps) {
 
       <div className="formulario-acciones">
         <button type="submit" className="boton boton-primario">
-          Guardar
+          {categoriaEnEdicion ? 'Actualizar' : 'Guardar'}
         </button>
+        {categoriaEnEdicion && onCancelar && (
+          <button type="button" className="boton boton-secundario" onClick={onCancelar}>
+            Cancelar
+          </button>
+        )}
       </div>
     </form>
   )
