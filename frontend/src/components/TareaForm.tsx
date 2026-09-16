@@ -1,8 +1,9 @@
 import { useState } from 'react'
-import { ETIQUETAS_RECURRENCIA, TipoRecurrencia, type TodoItemInput } from '../types'
+import { ETIQUETAS_RECURRENCIA, TipoRecurrencia, type Categoria, type TodoItemInput } from '../types'
 
 interface TareaFormProps {
   valorInicial?: TodoItemInput
+  categorias?: Categoria[]
   onGuardar: (tarea: TodoItemInput) => void
   onCancelar?: () => void
 }
@@ -12,14 +13,16 @@ const valorPorDefecto: TodoItemInput = {
   isCompleted: false,
   esRepetitiva: false,
   recurrencia: null,
+  categoriaId: null,
 }
 
-export function TareaForm({ valorInicial, onGuardar, onCancelar }: TareaFormProps) {
+export function TareaForm({ valorInicial, categorias = [], onGuardar, onCancelar }: TareaFormProps) {
   const [title, setTitle] = useState(valorInicial?.title ?? valorPorDefecto.title)
   const [esRepetitiva, setEsRepetitiva] = useState(valorInicial?.esRepetitiva ?? false)
   const [recurrencia, setRecurrencia] = useState<TipoRecurrencia | null>(
     valorInicial?.recurrencia ?? null,
   )
+  const [categoriaId, setCategoriaId] = useState<number | null>(valorInicial?.categoriaId ?? null)
 
   function handleSubmit(evento: React.FormEvent) {
     evento.preventDefault()
@@ -32,6 +35,7 @@ export function TareaForm({ valorInicial, onGuardar, onCancelar }: TareaFormProp
       isCompleted: valorInicial?.isCompleted ?? false,
       esRepetitiva,
       recurrencia: esRepetitiva ? recurrencia : null,
+      categoriaId,
     })
   }
 
@@ -68,6 +72,18 @@ export function TareaForm({ valorInicial, onGuardar, onCancelar }: TareaFormProp
           ))}
         </select>
       )}
+
+      <select
+        value={categoriaId ?? ''}
+        onChange={(evento) => setCategoriaId(evento.target.value === '' ? null : Number(evento.target.value))}
+      >
+        <option value="">Sin categoría</option>
+        {categorias.map((categoria) => (
+          <option key={categoria.id} value={categoria.id}>
+            {categoria.nombre}
+          </option>
+        ))}
+      </select>
 
       <div className="formulario-acciones">
         <button type="submit" className="boton boton-primario">

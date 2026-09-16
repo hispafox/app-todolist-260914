@@ -1,15 +1,16 @@
 import { useState } from 'react'
-import { ETIQUETAS_RECURRENCIA, type TodoItem, type TodoItemInput } from '../types'
+import { ETIQUETAS_RECURRENCIA, type Categoria, type TodoItem, type TodoItemInput } from '../types'
 import { TareaForm } from './TareaForm'
 
 interface TareaItemProps {
   tarea: TodoItem
+  categorias: Categoria[]
   onCompletar: (id: number) => void
   onActualizar: (id: number, tarea: TodoItemInput) => void
   onEliminar: (id: number) => void
 }
 
-export function TareaItem({ tarea, onCompletar, onActualizar, onEliminar }: TareaItemProps) {
+export function TareaItem({ tarea, categorias, onCompletar, onActualizar, onEliminar }: TareaItemProps) {
   const [editando, setEditando] = useState(false)
 
   if (editando) {
@@ -21,7 +22,9 @@ export function TareaItem({ tarea, onCompletar, onActualizar, onEliminar }: Tare
             isCompleted: tarea.isCompleted,
             esRepetitiva: tarea.esRepetitiva,
             recurrencia: tarea.recurrencia,
+            categoriaId: tarea.categoriaId,
           }}
+          categorias={categorias}
           onGuardar={(datos) => {
             onActualizar(tarea.id, datos)
             setEditando(false)
@@ -36,6 +39,14 @@ export function TareaItem({ tarea, onCompletar, onActualizar, onEliminar }: Tare
     <li className={`tarjeta${tarea.isCompleted ? ' tarjeta-completada' : ''}`}>
       <div className="tarjeta-info">
         <strong>{tarea.title}</strong>
+        {tarea.categoria && (
+          <span
+            className="etiqueta"
+            style={{ backgroundColor: tarea.categoria.color, color: '#fff', borderColor: tarea.categoria.color }}
+          >
+            {tarea.categoria.nombre}
+          </span>
+        )}
         {tarea.esRepetitiva && tarea.recurrencia !== null && (
           <span className="etiqueta">Repetitiva · {ETIQUETAS_RECURRENCIA[tarea.recurrencia]}</span>
         )}

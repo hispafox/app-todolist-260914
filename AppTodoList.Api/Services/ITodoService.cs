@@ -1,13 +1,13 @@
-using AppTodoList.Models;
+using AppTodoList.Api.Dtos;
 
 namespace AppTodoList.Api.Services;
 
 public interface ITodoService
 {
-    Task<IEnumerable<TodoItem>> ObtenerTodosAsync();
-    Task<TodoItem?> ObtenerPorIdAsync(int id);
-    Task<TodoItem> CrearAsync(TodoItem todoItem);
-    Task<TodoItem?> ActualizarAsync(int id, TodoItem todoItem);
+    Task<IEnumerable<TareaDto>> ObtenerTodosAsync();
+    Task<TareaDto?> ObtenerPorIdAsync(int id);
+    Task<TareaDto> CrearAsync(GuardarTareaDto dto);
+    Task<TareaDto?> ActualizarAsync(int id, GuardarTareaDto dto);
     Task<bool> EliminarAsync(int id);
-    Task<TodoItem?> CompletarAsync(int id);
+    Task<TareaDto?> CompletarAsync(int id);
 }

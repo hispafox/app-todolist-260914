@@ -1,5 +1,5 @@
+using AppTodoList.Api.Dtos;
 using AppTodoList.Api.Services;
-using AppTodoList.Models;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AppTodoList.Api.Controllers;
@@ -16,14 +16,14 @@ public class TareasController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<TodoItem>>> GetAll()
+    public async Task<ActionResult<IEnumerable<TareaDto>>> GetAll()
     {
         var tareas = await _todoService.ObtenerTodosAsync();
         return Ok(tareas);
     }
 
     [HttpGet("{id:int}")]
-    public async Task<ActionResult<TodoItem>> GetById(int id)
+    public async Task<ActionResult<TareaDto>> GetById(int id)
     {
         var tarea = await _todoService.ObtenerPorIdAsync(id);
         if (tarea is null)
@@ -35,11 +35,11 @@ public class TareasController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<ActionResult<TodoItem>> Create(TodoItem todoItem)
+    public async Task<ActionResult<TareaDto>> Create([FromBody] GuardarTareaDto dto)
     {
         try
         {
-            var creada = await _todoService.CrearAsync(todoItem);
+            var creada = await _todoService.CrearAsync(dto);
             return CreatedAtAction(nameof(GetById), new { id = creada.Id }, creada);
         }
         catch (ArgumentException ex)
@@ -49,11 +49,11 @@ public class TareasController : ControllerBase
     }
 
     [HttpPut("{id:int}")]
-    public async Task<ActionResult<TodoItem>> Update(int id, TodoItem todoItem)
+    public async Task<ActionResult<TareaDto>> Update(int id, [FromBody] GuardarTareaDto dto)
     {
         try
         {
-            var actualizada = await _todoService.ActualizarAsync(id, todoItem);
+            var actualizada = await _todoService.ActualizarAsync(id, dto);
             if (actualizada is null)
             {
                 return NotFound();
@@ -80,7 +80,7 @@ public class TareasController : ControllerBase
     }
 
     [HttpPost("{id:int}/completar")]
-    public async Task<ActionResult<TodoItem>> Completar(int id)
+    public async Task<ActionResult<TareaDto>> Completar(int id)
     {
         var tarea = await _todoService.CompletarAsync(id);
         if (tarea is null)

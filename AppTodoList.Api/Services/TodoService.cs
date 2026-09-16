@@ -1,4 +1,6 @@
 using AppTodoList.Api.Data;
+using AppTodoList.Api.Dtos;
+using AppTodoList.Api.LogicaNegocio;
 using AppTodoList.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -7,49 +9,64 @@ namespace AppTodoList.Api.Services;
 public class TodoService : ITodoService
 {
     private readonly AppDbContext _context;
+    private readonly ICategoriaLogica _categoriaLogica;
 
-    public TodoService(AppDbContext context)
+    public TodoService(AppDbContext context, ICategoriaLogica categoriaLogica)
     {
         _context = context;
+        _categoriaLogica = categoriaLogica;
     }
 
-    public async Task<IEnumerable<TodoItem>> ObtenerTodosAsync()
+    public async Task<IEnumerable<TareaDto>> ObtenerTodosAsync()
     {
-        return await _context.TodoItems
+        var tareas = await _context.TodoItems
             .AsNoTracking()
             .Include(todo => todo.Plantilla)
             .Include(todo => todo.Categoria)
             .Include(todo => todo.Persona)
             .OrderByDescending(todo => todo.CreatedAt)
             .ToListAsync();
+
+        return tareas.Select(MapearADto);
     }
 
-    public async Task<TodoItem?> ObtenerPorIdAsync(int id)
+    public async Task<TareaDto?> ObtenerPorIdAsync(int id)
     {
-        return await _context.TodoItems
+        var tarea = await _context.TodoItems
             .AsNoTracking()
             .Include(todo => todo.Plantilla)
             .Include(todo => todo.Categoria)
             .Include(todo => todo.Persona)
             .FirstOrDefaultAsync(todo => todo.Id == id);
+
+        return tarea is null ? null : MapearADto(tarea);
     }
 
-    public async Task<TodoItem> CrearAsync(TodoItem todoItem)
+    public async Task<TareaDto> CrearAsync(GuardarTareaDto dto)
     {
-        ValidarTodoItem(todoItem);
+        ValidarTodo(dto);
+        await ValidarCategoriaAsync(dto.CategoriaId);
 
-        if (todoItem.CreatedAt == default)
+        var tarea = new TodoItem
         {
-            todoItem.CreatedAt = DateTime.UtcNow;
-        }
+            Title = dto.Titulo,
+            IsCompleted = dto.Completada,
+            CreatedAt = DateTime.UtcNow,
+            EsRepetitiva = dto.EsRepetitiva,
+            Recurrencia = dto.Recurrencia,
+            ProximaFecha = dto.EsRepetitiva && dto.Recurrencia.HasValue ? CalcularProximaFecha(dto.Recurrencia.Value, DateTime.UtcNow) : null,
+            PlantillaId = null,
+            CategoriaId = dto.CategoriaId,
+            PersonaId = null
+        };
 
-        _context.TodoItems.Add(todoItem);
+        _context.TodoItems.Add(tarea);
         await _context.SaveChangesAsync();
 
-        return todoItem;
+        return await ObtenerPorIdAsync(tarea.Id) ?? MapearADto(tarea);
     }
 
-    public async Task<TodoItem?> ActualizarAsync(int id, TodoItem todoItem)
+    public async Task<TareaDto?> ActualizarAsync(int id, GuardarTareaDto dto)
     {
         var tareaExistente = await _context.TodoItems.FirstOrDefaultAsync(todo => todo.Id == id);
         if (tareaExistente is null)
@@ -57,16 +74,15 @@ public class TodoService : ITodoService
             return null;
         }
 
-        ValidarTodoItem(todoItem);
+        ValidarTodo(dto);
+        await ValidarCategoriaAsync(dto.CategoriaId);
 
-        tareaExistente.Title = todoItem.Title;
-        tareaExistente.IsCompleted = todoItem.IsCompleted;
-        tareaExistente.EsRepetitiva = todoItem.EsRepetitiva;
-        tareaExistente.Recurrencia = todoItem.Recurrencia;
-        tareaExistente.ProximaFecha = todoItem.ProximaFecha;
-        tareaExistente.PlantillaId = todoItem.PlantillaId;
-        tareaExistente.CategoriaId = todoItem.CategoriaId;
-        tareaExistente.PersonaId = todoItem.PersonaId;
+        tareaExistente.Title = dto.Titulo;
+        tareaExistente.IsCompleted = dto.Completada;
+        tareaExistente.EsRepetitiva = dto.EsRepetitiva;
+        tareaExistente.Recurrencia = dto.Recurrencia;
+        tareaExistente.ProximaFecha = dto.EsRepetitiva && dto.Recurrencia.HasValue ? CalcularProximaFecha(dto.Recurrencia.Value, DateTime.UtcNow) : null;
+        tareaExistente.CategoriaId = dto.CategoriaId;
 
         await _context.SaveChangesAsync();
 
@@ -86,7 +102,7 @@ public class TodoService : ITodoService
         return true;
     }
 
-    public async Task<TodoItem?> CompletarAsync(int id)
+    public async Task<TareaDto?> CompletarAsync(int id)
     {
         var tarea = await _context.TodoItems
             .Include(todo => todo.Plantilla)
@@ -127,18 +143,52 @@ public class TodoService : ITodoService
         return await ObtenerPorIdAsync(tarea.Id);
     }
 
-    private static void ValidarTodoItem(TodoItem todoItem)
+    private async Task ValidarCategoriaAsync(int? categoriaId)
     {
-        if (string.IsNullOrWhiteSpace(todoItem.Title))
+        if (categoriaId is null)
+        {
+            return;
+        }
+
+        var categoria = await _categoriaLogica.ObtenerPorIdAsync(categoriaId.Value);
+        if (categoria is null)
+        {
+            throw new ArgumentException("La categoría especificada no existe.");
+        }
+    }
+
+    private static void ValidarTodo(GuardarTareaDto dto)
+    {
+        if (string.IsNullOrWhiteSpace(dto.Titulo))
         {
             throw new ArgumentException("El título es obligatorio.");
         }
 
-        if (todoItem.EsRepetitiva && !todoItem.Recurrencia.HasValue)
+        if (dto.EsRepetitiva && !dto.Recurrencia.HasValue)
         {
             throw new ArgumentException("La recurrencia es obligatoria para tareas repetitivas.");
         }
     }
+
+    private static TareaDto MapearADto(TodoItem tarea) => new()
+    {
+        Id = tarea.Id,
+        Titulo = tarea.Title,
+        Completada = tarea.IsCompleted,
+        CreatedAt = tarea.CreatedAt,
+        EsRepetitiva = tarea.EsRepetitiva,
+        Recurrencia = tarea.Recurrencia,
+        ProximaFecha = tarea.ProximaFecha,
+        PlantillaId = tarea.PlantillaId,
+        CategoriaId = tarea.CategoriaId,
+        Categoria = tarea.Categoria is null ? null : new CategoriaDto
+        {
+            Id = tarea.Categoria.Id,
+            Nombre = tarea.Categoria.Nombre,
+            Color = tarea.Categoria.Color
+        },
+        PersonaId = tarea.PersonaId
+    };
 
     private static DateTime CalcularProximaFecha(TipoRecurrencia recurrencia, DateTime fechaBase)
     {

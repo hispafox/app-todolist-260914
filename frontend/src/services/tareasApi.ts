@@ -9,13 +9,25 @@ export const tareasApi = {
   crear: (tarea: TodoItemInput) =>
     request<TodoItem>('/tareas', {
       method: 'POST',
-      body: JSON.stringify(tarea),
+      body: JSON.stringify({
+        titulo: tarea.title,
+        completada: tarea.isCompleted,
+        esRepetitiva: tarea.esRepetitiva,
+        recurrencia: tarea.recurrencia,
+        categoriaId: tarea.categoriaId,
+      }),
     }),
 
   actualizar: (id: number, tarea: TodoItemInput) =>
     request<TodoItem>(`/tareas/${id}`, {
       method: 'PUT',
-      body: JSON.stringify(tarea),
+      body: JSON.stringify({
+        titulo: tarea.title,
+        completada: tarea.isCompleted,
+        esRepetitiva: tarea.esRepetitiva,
+        recurrencia: tarea.recurrencia,
+        categoriaId: tarea.categoriaId,
+      }),
     }),
 
   eliminar: (id: number) =>

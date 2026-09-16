@@ -13,6 +13,12 @@ export const ETIQUETAS_RECURRENCIA: Record<TipoRecurrencia, string> = {
   [TipoRecurrencia.Mensual]: 'Mensual',
 }
 
+export interface Categoria {
+  id: number
+  nombre: string
+  color: string
+}
+
 export interface TodoItem {
   id: number
   title: string
@@ -23,6 +29,7 @@ export interface TodoItem {
   proximaFecha: string | null
   plantillaId: number | null
   categoriaId: number | null
+  categoria?: Categoria | null
   personaId: number | null
 }
 
@@ -31,6 +38,7 @@ export interface TodoItemInput {
   isCompleted: boolean
   esRepetitiva: boolean
   recurrencia: TipoRecurrencia | null
+  categoriaId: number | null
 }
 
 export interface PlantillaTarea {

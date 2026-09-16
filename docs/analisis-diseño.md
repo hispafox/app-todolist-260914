@@ -191,6 +191,12 @@ public enum TipoRecurrencia
 | DELETE | `/api/tareas/{id}` | Eliminar una tarea | `204 No Content` | `404` si no existe |
 | POST | `/api/tareas/{id}/completar` | Marcar como completada; si es repetitiva, genera la siguiente ocurrencia automáticamente | `200` + `TodoItem` (o nueva ocurrencia) | `404` si no existe |
 
+### Categorías — `/api/categorias`
+
+| Verbo | Ruta | Descripción | Respuesta OK | Error |
+|---|---|---|---|---|
+| GET | `/api/categorias` | Listar categorías disponibles para asignar a tareas | `200` + array de `CategoriaDto` ordenado por nombre | — |
+
 ### Plantillas — `/api/plantillas`
 
 | Verbo | Ruta | Descripción | Respuesta OK | Error |
