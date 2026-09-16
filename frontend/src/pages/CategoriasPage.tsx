@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react'
 import { categoriasApi } from '../services/categoriasApi'
-import type { Categoria } from '../types'
+import { ApiError } from '../services/api'
+import type { Categoria, CategoriaInput } from '../types'
+import { CategoriaForm } from '../components/CategoriaForm'
 import { CategoriaItem } from '../components/CategoriaItem'
 
 export function CategoriasPage() {
@@ -25,9 +27,21 @@ export function CategoriasPage() {
     }
   }
 
+  async function manejarCrear(categoria: CategoriaInput) {
+    try {
+      const creada = await categoriasApi.crear(categoria)
+      setCategorias((actuales) => [...actuales, creada])
+      setError(null)
+    } catch (err) {
+      setError(err instanceof ApiError ? err.message : 'No se pudo crear la categoría.')
+    }
+  }
+
   return (
     <section>
       <h2>Categorías</h2>
+
+      <CategoriaForm onGuardar={manejarCrear} />
 
       {error && <p className="mensaje-error">{error}</p>}
 

@@ -21,4 +21,18 @@ public class CategoriasController : ControllerBase
         var categorias = await _categoriaService.ObtenerTodosAsync();
         return Ok(categorias);
     }
+
+    [HttpPost]
+    public async Task<ActionResult<CategoriaDto>> Create([FromBody] GuardarCategoriaDto dto)
+    {
+        try
+        {
+            var creada = await _categoriaService.CrearAsync(dto);
+            return Created($"/api/categorias/{creada.Id}", creada);
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(ex.Message);
+        }
+    }
 }

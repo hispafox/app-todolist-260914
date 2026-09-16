@@ -19,6 +19,12 @@ export interface Categoria {
   color: string
 }
 
+export interface CategoriaInput {
+  nombre: string
+  color: string
+}
+
+
 export interface TodoItem {
   id: number
   titulo: string

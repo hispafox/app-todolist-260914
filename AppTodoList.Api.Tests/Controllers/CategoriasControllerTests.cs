@@ -42,6 +42,52 @@ public class CategoriasControllerTests : IDisposable
         Assert.NotEmpty(categorias);
     }
 
+    [Fact]
+    public async Task Create_ConDatosValidos_DeberiaDevolver201ConLaCategoriaCreada()
+    {
+        var dto = new GuardarCategoriaDto { Nombre = "Urgente", Color = "#ff0000" };
+
+        var resultado = await _controller.Create(dto);
+
+        var creadoResult = Assert.IsType<CreatedResult>(resultado.Result);
+        var categoria = Assert.IsType<CategoriaDto>(creadoResult.Value);
+        Assert.True(categoria.Id > 0);
+        Assert.Equal("Urgente", categoria.Nombre);
+    }
+
+    [Fact]
+    public async Task Create_ConNombreVacio_DeberiaDevolver400()
+    {
+        var dto = new GuardarCategoriaDto { Nombre = "   ", Color = "#ff0000" };
+
+        var resultado = await _controller.Create(dto);
+
+        Assert.IsType<BadRequestObjectResult>(resultado.Result);
+    }
+
+    [Fact]
+    public async Task Create_ConNombreDemasiadoLargo_DeberiaDevolver400()
+    {
+        var dto = new GuardarCategoriaDto { Nombre = new string('a', 101), Color = "#ff0000" };
+
+        var resultado = await _controller.Create(dto);
+
+        Assert.IsType<BadRequestObjectResult>(resultado.Result);
+    }
+
+    [Fact]
+    public async Task Create_DeberiaPersistirLaCategoriaEnElContexto()
+    {
+        var dto = new GuardarCategoriaDto { Nombre = "Personal", Color = "#00ff00" };
+
+        await _controller.Create(dto);
+        var resultado = await _controller.GetAll();
+
+        var okResult = Assert.IsType<OkObjectResult>(resultado.Result);
+        var categorias = Assert.IsAssignableFrom<IEnumerable<CategoriaDto>>(okResult.Value);
+        Assert.Contains(categorias, c => c.Nombre == "Personal");
+    }
+
     public void Dispose()
     {
         _context.Dispose();

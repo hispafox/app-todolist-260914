@@ -25,12 +25,12 @@ public class CategoriaService : ICategoriaService
         return categoria is null ? null : MapearADto(categoria);
     }
 
-    public async Task<CategoriaDto> CrearAsync(CategoriaDto categoria)
+    public async Task<CategoriaDto> CrearAsync(GuardarCategoriaDto dto)
     {
         var entidad = new Categoria
         {
-            Nombre = categoria.Nombre,
-            Color = categoria.Color
+            Nombre = dto.Nombre,
+            Color = dto.Color
         };
 
         var creada = await _categoriaLogica.CrearAsync(entidad);
