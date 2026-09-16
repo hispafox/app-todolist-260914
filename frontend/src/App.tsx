@@ -1,10 +1,11 @@
 import { useState } from 'react'
 import { TareasPage } from './pages/TareasPage'
 import { PlantillasPage } from './pages/PlantillasPage'
+import { CategoriasPage } from './pages/CategoriasPage'
 import logo from './assets/logo.svg'
 import './App.css'
 
-type Pestana = 'tareas' | 'plantillas'
+type Pestana = 'tareas' | 'plantillas' | 'categorias'
 
 function App() {
   const [pestana, setPestana] = useState<Pestana>('tareas')
@@ -29,10 +30,20 @@ function App() {
           >
             Plantillas
           </button>
+          <button
+            className={pestana === 'categorias' ? 'activo' : ''}
+            onClick={() => setPestana('categorias')}
+          >
+            Categorías
+          </button>
         </nav>
       </header>
 
-      <main>{pestana === 'tareas' ? <TareasPage /> : <PlantillasPage />}</main>
+      <main>
+        {pestana === 'tareas' && <TareasPage />}
+        {pestana === 'plantillas' && <PlantillasPage />}
+        {pestana === 'categorias' && <CategoriasPage />}
+      </main>
     </div>
   )
 }

@@ -93,6 +93,7 @@ dotnet ef database update
 | `verificador-apptodolist` | Comprobar que una implementación cumple los criterios de aceptación (§9) de un plan de `docs/plan-*.md`: compila, migraciones correctas, capas según el plan. Emite veredicto binario APROBADO/REVISAR. No edita nada (`tools: [read, search, execute]`, sin `edit`). |
 | `auditor-calidad` | Auditar toda la aplicación (o una capa) SIN un plan de referencia, en modo abogado del diablo: code smells, deuda técnica, async/await, EF Core, seguridad OWASP. Emite veredicto graduado APROBADO/OBSERVACIONES/RECHAZADO con puntuación en `docs/auditoria-<fecha>.md`. Fuera del ciclo (se invoca a demanda). `edit` es solo para su informe (`tools: [read, search, execute, edit]`). |
 | `orquestador-apptodolist` | Implementar una feature de principio a fin con una sola orden: invoca en cadena a `planificador-apptodolist`, `desarrollador-apptodolist` y `verificador-apptodolist` (bucle de verificación máx. 3 iteraciones), y hace el commit + push a la rama principal solo si el veredicto es APROBADO. No implementa código (`tools: [read, search, edit, execute, agent]`; `agents: [planificador-apptodolist, desarrollador-apptodolist, verificador-apptodolist]`). |
+| `creador-historias-usuario` | Generar historias de usuario (INVEST, con criterios de aceptación) a partir de una petición o funcionalidad y publicarlas inmediatamente como issues en GitHub mediante el MCP de GitHub. Verifica siempre el remote con `git remote -v` antes de llamar a la API (`tools: [read, search, edit, execute, github]`). |
 
 ---
 
