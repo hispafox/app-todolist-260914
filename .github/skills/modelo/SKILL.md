@@ -1,169 +1,95 @@
 ---
 name: modelo
-description: |
-  Genera y actualiza el modelo de dominio de la aplicación.
-  Lee la documentación del proyecto, especialmente README.md y
-  docs/analisis-diseño.md, y crea o modifica las clases de Models/
-  sin duplicar la entidad dentro del propio skill.
-license: MIT
-metadata:
-  version: "1.0.0"
+description: 'Crea o actualiza los modelos de dominio de la aplicación y los elementos relacionados (DTOs, ViewModels, DbContext, migraciones). Úsalo cuando quieras generar o regenerar las entidades del proyecto, actualizar campos del modelo, o sincronizar el código con el documento de análisis y diseño.'
+argument-hint: 'Modelo a crear o actualizar (opcional, por defecto: todos los modelos del análisis)'
 ---
 
-# Skill de dominio: modelo de datos
+# Skill: Crear y Actualizar el Modelo de la Aplicación
 
-Usa esta habilidad cuando necesites:
+## Cuándo usar este skill
 
-- crear el modelo de dominio del proyecto
-- actualizar el modelo y sus elementos relacionados solo cuando realmente existan cambios
-- mantener `Models/` alineado con la fuente de verdad del negocio
-- generar clases de dominio sin duplicar la información en el propio skill
-- evitar crear capas o archivos extra si no hay elementos relacionados que actualizar
+- El usuario pide "crear el modelo", "generar las entidades", "actualizar el modelo"
+- Se quiere sincronizar las clases de dominio con el documento de análisis
+- Se ha modificado el análisis y hay que reflejar los cambios en el código
+- Se quiere añadir o eliminar campos de una entidad existente
+- Se ha cambiado un campo y hay que propagar el cambio a DTOs, ViewModels, DbContext o migraciones
 
-## Fuente de verdad
+## Procedimiento
 
-Nunca infieras el modelo desde memoria ni lo escribas a mano dentro del skill.
-La fuente de verdad es esta documentación del proyecto:
+### Paso 1 — Leer el contexto
 
-- `README.md`
-- `docs/analisis-diseño.md`
+Leer los siguientes ficheros antes de generar nada:
 
-En particular, la sección 4 del análisis, "Modelo de datos", define qué entidades hay, sus propiedades y sus reglas.
+- [`docs/analisis-diseño.md`](../../docs/analisis-diseño.md) — fuente de verdad del modelo de datos (sección 4)
+- [`.github/copilot-instructions.md`](../copilot-instructions.md) — convenciones de código del proyecto
 
-## Regla principal
+Si `docs/analisis-diseño.md` no existe, detener y pedir al usuario que primero ejecute el skill `diseño-analisis`.
 
-Este skill no debe listar entidades fijas ni campos hardcodeados dentro de la propia instrucción.
-El modelo no debe duplicarse dentro del skill, porque si cambian las entidades del análisis habrá que cambiar este archivo constantemente.
+### Paso 2 — Localizar el proyecto y verificar si ya existen los modelos
 
-Debe leer el documento y generar o actualizar el modelo a partir de ese análisis cada vez que se ejecute.
+Buscar el fichero `.csproj` del proyecto principal (excluir proyectos de tests). La carpeta `Models/` siempre es relativa a ese `.csproj`, no a la raíz del repositorio.
 
-Si el diseño cambia en el documento, el modelo debe actualizarse sin tocar este skill.
+Ubicaciones habituales, en orden de preferencia:
+1. `src/<NombreProyecto>/Models/` — si hay carpeta `src/`
+2. `<NombreProyecto>/Models/` — si el proyecto tiene su propia subcarpeta
+3. `Models/` — si el `.csproj` está en la raíz del repositorio
 
-Si existen elementos relacionados al modelo (por ejemplo, entidades auxiliares, anotaciones o tipos derivados), se actualizan solo cuando realmente formen parte del dominio y existan en el análisis. Si no hay elementos relacionados, el skill solo crea o actualiza el modelo sin generar capas adicionales ni archivos innecesarios.
+Una vez localizada la carpeta correcta, comprobar qué ficheros contiene.  
+Si ya existen modelos, leer su contenido antes de modificar para evitar sobreescribir cambios manuales.
 
-Además, el modelo de datos debe vivir en un proyecto separado del proyecto principal de la aplicación, para poder integrarse después en la solución. No se debe mezclar con la API, la lógica de negocio ni el frontend.
+### Paso 3 — Crear o actualizar los modelos
 
-## Regla de dominio y coordinación de alcance
+Crear la carpeta `Models/` si no existe. Generar o actualizar **cada entidad** definida en la sección 4 del análisis.
 
-Este skill es la versión canónica del dominio del proyecto. El contenido de `domain-design` queda integrado aquí para evitar duplicación.
+#### Reglas de generación
 
-- el orquestador dirige el flujo del cambio y decide el alcance real antes de ampliar ninguna capa
-- el dominio ya existe y debe mantenerse alineado con `README.md` y `docs/analisis-diseño.md`
-- no se debe redefinir `TodoItem`, `PlantillaTarea` o `TipoRecurrencia` sin que el análisis lo indique explícitamente
-- este skill solo trabaja el modelo y no debe generar servicios, Data, controllers ni frontend por costumbre
-- la lógica de recurrencia, plantillas y validación debe estar en la capa que corresponda, no mezclada en la API ni en el frontend
-- si una funcionalidad requiere ampliar el alcance a servicios, Data, controllers o frontend, debe decidirlo el orquestador del proyecto y no generarse por costumbre
-- el objetivo del skill es mantener el dominio limpio, explícito y coherente, no duplicar reglas en varias capas
+- **Namespace**: `AppTodoList.Models`
+- **Idioma**: nombres de clases, propiedades y métodos en **castellano**, excepto las propiedades que el análisis defina explícitamente en inglés (`Id`, `Title`, `IsCompleted`, `CreatedAt`).
+- **Valores por defecto**: asignar siempre valores por defecto a las propiedades para evitar warnings de nullability:
+  - `string` → `= string.Empty`
+  - `bool` → `= false`
+  - Tipos nullable (`int?`, `DateTime?`, enum nullable) → sin valor por defecto (ya son nullable)
+- **Claves primarias**: propiedad `Id` de tipo `int`, autogenerada por EF Core.
+- **Relaciones de navegación**: incluirlas como propiedades nullable con el tipo de la entidad relacionada.
+- **Sin anotaciones de datos** (`[Required]`, `[MaxLength]`…): las restricciones se configuran en `AppDbContext` con Fluent API, no en el modelo.
+- **Sin lógica de negocio** en las entidades: solo propiedades, sin métodos.
+- **Enums** en fichero propio dentro de `Models/`.
 
-## Objetivo
+#### Entidades a generar
 
-Crear y mantener la capa de modelos de dominio de la aplicación, con una estructura simple, clara y alineada con el análisis del proyecto, y garantizando que ese código resida en un proyecto de dominio independiente listo para incorporarse en la solución.
+Extraer la lista completa de entidades y sus campos de la **sección 4 del análisis** (`docs/analisis-diseño.md`). Esa sección es la única fuente de verdad — no inferir ni añadir campos que no estén definidos ahí.
 
-## Estructura esperada
+Respetar el orden de generación según dependencias: los enums primero, luego las entidades sin FK, por último las entidades que referencian a otras.
 
-- un proyecto de modelos independiente, por ejemplo `AppTodoList.Models` o un proyecto equivalente de dominio
-- dentro de ese proyecto, una carpeta `Models/` para las entidades del negocio
-- un archivo por entidad o enum cuando aplique
-- namespace consistente con el proyecto
-- las clases de modelo suelen estar en carpetas o proyectos concretos; usar esa ubicación definida por el proyecto, no inventar carpetas nuevas si no existen
-- la solución principal incorporará ese proyecto más adelante; el skill no debe crear el modelo dentro del proyecto web ni dentro de la API
+### Paso 4 — Propagar cambios a elementos relacionados (solo si ya existen)
 
-Ejemplo esperable:
+Comprobar qué elementos relacionados existen en el proyecto. **Si ninguno existe, omitir este paso por completo** y pasar directamente al Paso 5.
 
-```csharp
-namespace AppTodoList.Models;
-```
+Solo actuar sobre los elementos que ya estén presentes en el código. No crear DTOs, ViewModels ni configuración de DbContext si no existían antes.
 
-## Orden de generación
+#### DTOs (`Dtos/` o `Models/Dtos/`)
 
-Cuando se creen entidades nuevas, respeta este orden por dependencias:
+Si existen DTOs:
+- Añadir o eliminar las propiedades que correspondan al cambio del modelo.
+- No incluir propiedades de navegación ni claves foráneas internas: los DTOs exponen solo los datos necesarios para la API.
 
-1. `TipoRecurrencia` (enum)
-2. `PlantillaTarea`
-3. `TodoItem`
+#### DbContext (`Data/AppDbContext.cs`)
 
-Esto mantiene una jerarquía coherente y evita referencias cruzadas innecesarias.
+Si el fichero existe:
+- Añadir el `DbSet<T>` de la nueva entidad si no estuviera.
+- Actualizar la configuración Fluent API en `OnModelCreating` para reflejar los cambios.
 
-## Reglas de generación
+#### Migraciones
 
-- Usa la definición del dominio en `docs/analisis-diseño.md` como referencia única.
-- No inventes campos, nombres o relaciones que no estén definidos allí.
-- No copies las entidades actuales dentro del skill; la fuente de verdad es el análisis.
-- Mantén nombres de clases y propiedades alineados con el dominio actual del proyecto.
-- Crea o actualiza el modelo dentro de un proyecto separado de la API; nunca lo generes como parte del proyecto web principal.
-- Si el proyecto de modelos no existe, créalo como una librería de clases o proyecto de dominio independiente que luego se añadirá a la solución.
-- Solo actualiza elementos relacionados cuando existan y estén definidos por el dominio; si no hay elementos relacionados, crea o actualiza únicamente el modelo.
-- No fuerces la creación de servicios, controladores, DbContext, DTOs ni archivos adjuntos si no forman parte del modelo y no están requeridos por el análisis.
-- Usa `string.Empty` en propiedades `string` requeridas cuando haga falta un valor por defecto.
-- `PlantillaId` debe ser nullable.
-- `TodoItem` puede tener relación opcional con `PlantillaTarea`.
-- La lógica de recurrencia no va en el modelo; va en la capa de servicios.
-- No generes controladores, servicios ni DbContext a menos que se te pida expresamente.
-- Si falta una entidad nueva en el análisis, créala; si una entidad desaparece del análisis, elimina o actualiza aquella que ya no corresponda.
-- Se debe priorizar la claridad sobre la sofisticación.
+Si existe la carpeta `Migrations/` (EF Core ya está configurado):
+- **No crear la migración automáticamente.** Indicar al usuario el comando exacto a ejecutar:
+  ```
+  dotnet ef migrations add <NombreDescriptivo>
+  dotnet ef database update
+  ```
 
-## Entidades esperadas del proyecto
+### Paso 5 — Confirmar
 
-Consulta siempre el documento de análisis para confirmar la definición exacta actual. En el diseño actual del proyecto, las entidades esperadas son:
-
-- `TipoRecurrencia` (enum con `Diaria`, `Semanal`, `Mensual`)
-- `PlantillaTarea`
-- `TodoItem`
-
-## Criterio de validación
-
-Tras generar o actualizar el modelo, comprueba que:
-
-- los archivos en `Models/` reflejan el documento de análisis
-- no se han añadido entidades no definidas
-- hay coherencia entre nombres, tipos, nulos y relaciones
-- el proyecto compila sin errores
-
-## Resultado esperado
-
-El output debe ser un proyecto de modelos independiente y consistente con la documentación del proyecto, con el dominio expresado de forma clara y real, listo para incorporarse luego a la solución principal. La entidad no debe quedar mezclada dentro de la API ni del proyecto ejecutable del backend.
-
-## Ejemplo de estilo esperado
-
-```csharp
-public enum TipoRecurrencia
-{
-    Diaria,
-    Semanal,
-    Mensual
-}
-
-public class PlantillaTarea
-{
-    public int Id { get; set; }
-    public string Titulo { get; set; } = string.Empty;
-    public bool EsRepetitiva { get; set; }
-    public TipoRecurrencia? Recurrencia { get; set; }
-}
-
-public class TodoItem
-{
-    public int Id { get; set; }
-    public string Title { get; set; } = string.Empty;
-    public bool IsCompleted { get; set; }
-    public DateTime CreatedAt { get; set; }
-    public bool EsRepetitiva { get; set; }
-    public TipoRecurrencia? Recurrencia { get; set; }
-    public DateTime? ProximaFecha { get; set; }
-    public int? PlantillaId { get; set; }
-    public PlantillaTarea? Plantilla { get; set; }
-}
-```
-
-## Instrucción operativa final
-
-Antes de generar o actualizar el modelo:
-
-1. lee `README.md`
-2. lee `docs/analisis-diseño.md`
-3. identifica la sección 4 del análisis como fuente de verdad
-4. crea o actualiza el modelo en un proyecto separado del proyecto principal cuando corresponda
-5. actualiza solo elementos relacionados si realmente existen y forman parte del dominio
-6. si no hay elementos relacionados, crea o actualiza solo el modelo y no generes capas extra
-7. no listes entidades a mano dentro de este skill
-8. mantén la solución simple y alineada con la arquitectura del proyecto
+Informar al usuario con una lista de los ficheros creados o modificados con sus rutas relativas.  
+Si algún campo del análisis y el código existente difieren, señalarlo explícitamente para que el usuario decida.  
+Si hay migraciones pendientes, recordarlo al final con el comando listo para copiar.
